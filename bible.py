@@ -28,15 +28,27 @@ class Verses:
             result.append(f'({self.book}){bk}.{self.chapter}.{v[0]}: {v[1]}')
         return '\n'.join(result)
 
+#TODO
+#from func_tools import files_in
 
+#srcs = files_in('../bible/')
+#for res in srcs:
+    
 root_pl = etree.parse('../bible/Polish2018Bible.xml')
 root_en = etree.parse('../bible/EnglishCSBBible.xml')
+root_pl2 = etree.parse('../bible/PolishNPDBible.xml')
+
+roots = [ root_pl, 
+        # root_pl2,
+         root_en ]
 root = root_pl
 
 def get_root():
     return root
 def swap_root():
     global root
+    root = roots[(roots.index(root) + 1)% len(roots)]#NC:3]
+    return
     if root is root_pl:
         root = root_en
     else:

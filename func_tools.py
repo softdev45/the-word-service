@@ -13,7 +13,27 @@ def log_call(func):
         end_time = timeit.default_timer()
         exec_time = end_time - start_time
         with open('calls.log','a+') as file:
-            file.write(f"[{exec_time}]{func.__name__}({args})\n")
+            file.write(f"[{exec_time}]{func.__name__}{args}\n")
         return result
 
     return wrapper
+
+import os
+
+def files_in(path):
+  """
+  Gets a list of all files in the given path.
+
+  Args:
+    path: The path to the directory.
+
+  Returns:
+    A list of all files in the directory.
+  """
+
+  files = []
+  for root, dirs, files in os.walk(path):
+    for file in files:
+      if os.path.isfile(os.path.join(root, file)):
+        files.append(os.path.join(root, file))
+  return files
