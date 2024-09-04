@@ -24,10 +24,10 @@ def get(sess):
 
 @app.post("/cmd")
 def cmd(cmd:str, sess):
-    print(sess.get('lcmd',None))
+    print('cmd: ' + sess.get('lcmd',None))
     result = exec_cmd(cmd, lcmd=sess.get('lcmd', None))
     sess['lcmd'] = cmd
-    print(result)
+    #print(result)
     if type(result) is Verses:
         verses = Div(*list(map(lambda v: Div(Span(v[0][0],style="color:#888"),v[1]), result.verses)))
         result = Div(Div(result.book, result.get_book(), result.chapter, style="color:#888"), verses)
@@ -35,7 +35,7 @@ def cmd(cmd:str, sess):
         verses = Div(*list(map(lambda v: Div(Span(v[2],v[1],v[0],style="color:#888"),v[3]), result)))
         result = Div(verses)
     if result:
-        result = Div(Div(cmd),result, id='rr', style="padding:100px; border: 1px solid; max-height:1000px;")
+        result = Div(Div(cmd),result, id='rr', style="padding:100px; border: 1px solid; max-height:1000px; overflow-y:scroll;")
     return result
 
 serve(port=5051)

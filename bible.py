@@ -100,7 +100,7 @@ def get_bible(book, chapter, verses):
     return Verses(book,chapter,result)
 
 def get_cmd(cmd):
-    parts = cmd[1:].split(' ')
+    parts = cmd[1:].strip().split(' ')
     if len(parts) == 3:
         b,c,v = parts
     elif len(parts) == 2:
@@ -112,7 +112,10 @@ def get_cmd(cmd):
     if '-' in v:
         vs,ve = v.split('-')
         v = [int(vs), int(ve)]
-
+    b=int(b)
+    c=int(c)
+    if type(v) is str:
+        v = int(v)
     result = get_bible(b,c,v)
     print(result)
     print("="*60)
