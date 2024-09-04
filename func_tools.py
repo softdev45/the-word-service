@@ -1,6 +1,7 @@
 import inspect
 import functools
 import timeit
+import datetime
 
 def log_call(func):
     """Decorator that logs the call to the decorated function."""
@@ -12,8 +13,10 @@ def log_call(func):
         result = func(*args, **kwargs)
         end_time = timeit.default_timer()
         exec_time = end_time - start_time
+        timestamp = datetime.datetime.now().timestamp()
+        dt = datetime.datetime.fromtimestamp(timestamp)
         with open('calls.log','a+') as file:
-            file.write(f"[{exec_time}]{func.__name__}{args}\n")
+            file.write(f"[{dt}][{exec_time}]{func.__name__}{args}\n")
         return result
 
     return wrapper

@@ -35,7 +35,7 @@ def cmd(cmd:str, sess):
         verses = Div(*list(map(lambda v: Div(Span(v[2],v[1],v[0],style="color:#888"),v[3]), result)))
         result = Div(verses)
     if result:
-        result = Div(result, id='rr', style="padding:100px; border: 1px solid;")
+        result = Div(Div(cmd),result, id='rr', style="padding:100px; border: 1px solid; max-height:1000px;")
     return result
 
 serve(port=5051)
