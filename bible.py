@@ -86,31 +86,37 @@ def get_bible(book, chapter, verses):
     result = list(map(lambda elem: (elem.values(), elem.text), elements))
     return Verses(book,chapter,result)
 
-lcmd = ''
-scmd = ''
-def cmd_ui():
-    def get_cmd(cmd):
-        parts = cmd[1:].split(' ')
-        if len(parts) == 3:
-            b,c,v = parts
-        elif len(parts) == 2:
-            b,c = parts
-            v = [0,1000]
+def get_cmd(cmd):
+    parts = cmd[1:].split(' ')
+    if len(parts) == 3:
+        b,c,v = parts
+    elif len(parts) == 2:
+        b,c = parts
+        v = [0,1000]
 
-        if not b.isnumeric():
-            b = chpt.index(b.upper()) + 1
-        if '-' in v:
-            vs,ve = v.split('-')
-            v = [int(vs), int(ve)]
+    if not b.isnumeric():
+        b = chpt.index(b.upper()) + 1
+    if '-' in v:
+        vs,ve = v.split('-')
+        v = [int(vs), int(ve)]
 
-        print(get_bible(b,c,v))
-        print("="*60)
-    def seek_cmd(cmd):
-        cmd = cmd[1:]
-        r = word_search(cmd)
+    result = get_bible(b,c,v)
+    print(result)
+    print("="*60)
+    return result
+
+def seek_cmd(cmd):
+    cmd = cmd[1:]
+    r = word_search(cmd)
+    print(r)
+    if r:
         for el in r :
             print(el)
 
+def cmd_ui():
+
+    lcmd = ''
+    scmd = ''
     print("="*60)
     while True:
         cmd = input('>')
@@ -139,6 +145,7 @@ def test_lib():
     r2 = word_search('test')
     print(r2)
 
-test_lib()
-cmd_ui()
+if __name__ == '__main__':
+    test_lib()
+    cmd_ui()
 

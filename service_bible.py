@@ -1,6 +1,9 @@
 from fasthtml.common import *
 
+from bible import word_search, get_bible
+from bible import get_cmd
 
+get_cmd('@PSA 45')
 app = FastHTML()
 rt = app.route
 
@@ -18,6 +21,10 @@ def get():
 @app.post("/cmd")
 async def cmd(cmd:str):
     print(cmd)
-    return Div(cmd+"!",hw_swap_oob='true',id="rr", style="padding:100px; border: 1px solid;") 
+    #TODO
+    #result = get_cmd(cmd)
+    #print(result)
+    #result = map(lambda v: Div(v), result.verses)
+    return Div(get_cmd(cmd), hw_swap_oob='true',id="rr", style="padding:100px; border: 1px solid;") 
 
 serve(port=5051)
