@@ -1,6 +1,8 @@
 from lxml import etree
 from dataclasses import dataclass, field
 
+from func_tools import log_call
+
 def gen_book_map():
     result = []
     with open('chapter') as file:
@@ -27,11 +29,22 @@ class Verses:
 
 
 root_pl = etree.parse('../bible/Polish2018Bible.xml')
-
+root_en = etree.parse('../bible/EnglishCSBBible.xml')
+root = root_pl
 
 def get_root():
-    return root_pl
+    return root
+def swap_root():
+    global root
+    if root is root_pl:
+        root = root_en
+    else:
+        root = root_pl
 
+#def loc_to_verse(l):
+
+
+@log_call
 def word_search(word):
 	if len(w := word.split(',')) > 1:
 		word = w[0]
@@ -45,8 +58,8 @@ def word_search(word):
 	# print('word search', word, locations)
 	if len(locations) == 0:
 		return []
-	locations = list(map(lambda l: (l.text, l.values(), l.getparent().values(),
-                                 chpt[int(l.getparent().getparent().values()[0])-1]), locations))
+	locations = list(map(lambda l: (l.values(), l.getparent().values(),
+                                 chpt[int(l.getparent().getparent().values()[0])-1], l.text), locations))
 	return locations
 
 def xpath_range(attr, rng):
@@ -62,6 +75,7 @@ def xpath_range(attr, rng):
 
 
 
+@log_call
 def get_bible(book, chapter, verses):
     xpath_expr = f".//book[@number='{book}']//chapter[@number='{chapter}']"
     #xpath_expr = xpath_expr + f"//verse[@number >={start} and @number <={end}]"
@@ -72,30 +86,47 @@ def get_bible(book, chapter, verses):
     result = list(map(lambda elem: (elem.values(), elem.text), elements))
     return Verses(book,chapter,result)
 
-
+lcmd = ''
+scmd = ''
 def cmd_ui():
+    def get_cmd(cmd):
+        parts = cmd[1:].split(' ')
+        if len(parts) == 3:
+            b,c,v = parts
+        elif len(parts) == 2:
+            b,c = parts
+            v = [0,1000]
+
+        if not b.isnumeric():
+            b = chpt.index(b.upper()) + 1
+        if '-' in v:
+            vs,ve = v.split('-')
+            v = [int(vs), int(ve)]
+
+        print(get_bible(b,c,v))
+        print("="*60)
+    def seek_cmd(cmd):
+        cmd = cmd[1:]
+        r = word_search(cmd)
+        for el in r :
+            print(el)
+
     print("="*60)
     while True:
         cmd = input('>')
         if cmd in chpt:
             ...
+        if 's' == cmd:
+            swap_root()
+            if '@' in lcmd:
+                get_cmd(lcmd)
 
-        if ' ' in cmd: 
-            parts = cmd.split(' ')
-            if len(parts) == 3:
-                b,c,v = parts
-            elif len(parts) == 2:
-                b,c = parts
-                v = [0,1000]
-
-            if not b.isnumeric():
-                b = chpt.index(b.upper()) + 1
-            if '-' in v:
-                vs,ve = v.split('-')
-                v = [int(vs), int(ve)]
-
-            print(get_bible(b,c,v))
-            print("="*60)
+        if '@' in cmd: 
+            lcmd = cmd
+            get_cmd(cmd)
+        if '#' in cmd:
+            scmd = cmd
+            seek_cmd(cmd)
 
 
 def test_lib():
