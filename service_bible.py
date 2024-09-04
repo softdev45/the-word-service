@@ -24,7 +24,10 @@ def get(sess):
 
 @app.post("/cmd")
 def cmd(cmd:str, sess):
-    print('cmd: ' + sess.get('lcmd',None))
+    lcmd = sess.get('lcmd',None)
+    print(f'cmd: {cmd}; lcmd: {lcmd}')
+    if cmd[0] in '#@' and cmd == lcmd:
+        return None
     result = exec_cmd(cmd, lcmd=sess.get('lcmd', None))
     sess['lcmd'] = cmd
     #print(result)
