@@ -1,7 +1,7 @@
 from fasthtml.common import *
 
-from bible import word_search, get_bible
-from bible import get_cmd
+from bible import word_search, get_bible, Verses
+from bible import get_cmd, exec_cmd
 
 START_PAGE = "@PSA 45 2-5"
 
@@ -21,8 +21,15 @@ def get():
 
 @app.post("/cmd")
 def cmd(cmd:str):
-    result = get_cmd(cmd)
-    verses = Div(*list(map(lambda v: Div(Span(v[0][0],style="color:#888"),v[1]), result.verses)))
-    return Div(Div(result.book, result.chapter, verses), hw_swap_oob='true',id="rr", style="padding:100px; border: 1px solid;") 
+    result = exec_cmd(cmd)
+    print(result)
+    if type(result) is Verses:
+        verses = Div(*list(map(lambda v: Div(Span(v[0][0],style="color:#888"),v[1]), result.verses)))
+        result = Div(Div(Div(result.book, result.get_book(), result.chapter, style="color:#888"), verses), 
+                   hw_swap_oob='true',id="rr", style="padding:100px; border: 1px solid;") 
+    else:
+        verses = Div(*list(map(lambda v: Div(Span(v[2],v[1],v[0],style="color:#888"),v[3]), result)))
+        result = Div(verses)
+    return result
 
 serve(port=5051)

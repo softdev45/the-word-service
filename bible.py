@@ -20,6 +20,7 @@ class Verses:
     chapter : int
     #verses : list[tuple] = []
     verses: list = field(default_factory=list)
+    def get_book(self): return chpt[self.book-1]
     def __str__(self):
         bk = chpt[self.book-1]
         result = []
@@ -58,7 +59,7 @@ def word_search(word):
 	# print('word search', word, locations)
 	if len(locations) == 0:
 		return []
-	locations = list(map(lambda l: (l.values(), l.getparent().values(),
+	locations = list(map(lambda l: (l.values()[0], l.getparent().values()[0],
                                  chpt[int(l.getparent().getparent().values()[0])-1], l.text), locations))
 	return locations
 
@@ -112,6 +113,19 @@ def seek_cmd(cmd):
     if r:
         for el in r :
             print(el)
+    return r
+
+def exec_cmd(cmd, lcmd = ''):
+    if 's' == cmd:
+        swap_root()
+        if '@' in lcmd:
+            return get_cmd(lcmd)
+    elif '@' in cmd: 
+        lcmd = cmd
+        return get_cmd(cmd)
+    elif '#' in cmd:
+        lcmd = cmd
+        return seek_cmd(cmd)
 
 def cmd_ui():
 
@@ -122,17 +136,7 @@ def cmd_ui():
         cmd = input('>')
         if cmd in chpt:
             ...
-        if 's' == cmd:
-            swap_root()
-            if '@' in lcmd:
-                get_cmd(lcmd)
-
-        if '@' in cmd: 
-            lcmd = cmd
-            get_cmd(cmd)
-        if '#' in cmd:
-            scmd = cmd
-            seek_cmd(cmd)
+        exec_cmd(cmd, lcmd)
 
 
 def test_lib():
