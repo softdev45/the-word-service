@@ -14,5 +14,6 @@ def log_call(func):
         exec_time = end_time - start_time
         with open('calls.log','a+') as file:
             file.write(f"[{exec_time}]{func.__name__}({args})\n")
+        return result
 
     return wrapper
