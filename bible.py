@@ -57,7 +57,11 @@ def swap_root():
     else:
         root = root_pl
 
-#def loc_to_verse(l):
+def encapsulate(verse):
+    v = Verse(int(verse.getparent().getparent().values()[0]),int(verse.getparent().values()[0]),[int(verse.values()[0])])
+
+
+
 
 
 @log_call
@@ -93,7 +97,7 @@ def xpath_range(attr, rng):
 
 @log_call
 def get_bible(book, chapter, verses):
-    xpath_expr = f".//book[@number='{book}']//chapter[@number='{chapter}']"
+    xpath_expr = f"//book[@number='{book}']//chapter[@number='{chapter}']"
     #xpath_expr = xpath_expr + f"//verse[@number >={start} and @number <={end}]"
     if verses:
         xpath_expr = xpath_expr + f"//verse"+xpath_range('number',verses)
@@ -163,7 +167,6 @@ def test_lib():
     #print(dir(r[0]))
     #print(repr(r))
     print(repr(r))
-    print('ws')
     r2 = word_search('test')
     print(r2)
 

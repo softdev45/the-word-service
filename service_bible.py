@@ -5,9 +5,10 @@ from bible import get_cmd, exec_cmd
 
 START_PAGE = "@PSA 45 2-5"
 
-bs = Style(':root {color:white; background:black;}')
+bs = Style(':root {color:#999; background:#444;}')
 ws = Style(':root {color:black; background:white;}')
 app = FastHTML()
+app.hdrs.append(bs)
 rt = app.route
 
 PAGE_STYLE = "padding:100px; border: 1px solid;  max-height:1000px; overflow-y:scroll;"
@@ -21,7 +22,7 @@ def get(sess):
             hx_post='/cmd',target_id='result',
             hx_swap='beforeend', hx_on__after_request='document.querySelector("#result > :last-child").scrollIntoView(true)',
             ),
-                style="position:sticky; top:0; background: white;"
+                style="position:sticky; top:0; background: #444;"
             )
     return form,card
 
