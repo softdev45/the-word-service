@@ -18,7 +18,10 @@ print(chpt)
 class Verses:
     book : int
     chapter : int
+    #verse : field(default_factory=list)
     #verses : list[tuple] = []
+    #keyword : str = None
+    
     verses: list = field(default_factory=list)
     def get_book(self): return chpt[self.book-1]
     def __str__(self):
