@@ -38,16 +38,22 @@ def cmd(cmd:str, sess):
             app.hdrs.append(ws)
         return None
     result = exec_cmd(cmd, lcmd=sess.get('lcmd', None))
+
+    hist = sess.get('hist',[])
+    hist.append(cmd)
+    print(hist)
+    sess['hist'] = hist
+
     sess['lcmd'] = cmd
     #print(result)
     if type(result) is Verses:
-        verses = Div(*list(map(lambda v: Div(Span(v[0][0],style="color:#888"),v[1]), result.verses)))
-        result = Div(Div(result.book, result.get_book(), result.chapter, style="color:#888"), verses)
+        verses = Div(*list(map(lambda v: Div(Span(v[0][0],style="color:#888; font-size:70%;"),v[1]), result.verses)))
+        result = Div(Div(result.book, result.get_book(), result.chapter, style="color:#888;"), verses)
     elif result:
         verses = Div(*list(map(lambda v: Div(Span(v[2],v[1],v[0],style="color:#888"),v[3]), result)))
         result = Div(verses)
     if result:
-        result = Div(Div(cmd),result, id=f'{cmd}', style=PAGE_STYLE)
+        result = Div(Div('~'+cmd, style="font-size:70%"),result, id=f'{cmd}', style=PAGE_STYLE)
     return result
 
 serve(port=5051)
