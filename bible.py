@@ -2,16 +2,11 @@ from lxml import etree
 from dataclasses import dataclass, field
 
 from func_tools import log_call
+from func_tools import xpath_range
+from func_tools import gen_book_map
 
-def gen_book_map():
-    result = []
-    with open('chapter') as file:
-        while l := file.readline().strip():
-            result.append(l)
-    return result
 
 chpt = gen_book_map()
-print(chpt)
         
 
 @dataclass
@@ -30,38 +25,47 @@ class Verses:
         for v in self.verses:
             result.append(f'({self.book}){bk}.{self.chapter}.{v[0]}: {v[1]}')
         return '\n'.join(result)
+    def ref(self):
+        return f'({self.book}) {chpt[self.book-1]} {self.chapter}' 
 
 #TODO
 #from func_tools import files_in
 
 #srcs = files_in('../bible/')
 #for res in srcs:
-    
-root_pl = etree.parse('../bible/Polish2018Bible.xml')
-root_en = etree.parse('../bible/EnglishCSBBible.xml')
-root_pl2 = etree.parse('../bible/PolishNPDBible.xml')
 
-roots = [ root_pl, 
-        # root_pl2,
-         root_en ]
-root = root_pl
+root = None
+roots = []
+
+@log_call
+def load_translations():
+    global root
+    global roots
+
+    root_pl = etree.parse('../bible/Polish2018Bible.xml')
+    root_en = etree.parse('../bible/EnglishCSBBible.xml')
+    root_pl2 = etree.parse('../bible/PolishNPDBible.xml')
+
+    roots = [ root_pl, 
+             root_pl2,
+             root_en ]
+    root = root_pl
+
+load_translations()
+
+#root = root_pl
 
 def get_root():
     return root
 def swap_root():
     global root
     root = roots[(roots.index(root) + 1)% len(roots)]#NC:3]
-    return
-    if root is root_pl:
-        root = root_en
-    else:
-        root = root_pl
+    
 
 def encapsulate(verse):
-    v = Verse(int(verse.getparent().getparent().values()[0]),int(verse.getparent().values()[0]),[int(verse.values()[0])])
-
-
-
+    v = Verse(int(verse.getparent().getparent().values()[0]),
+              int(verse.getparent().values()[0]),
+              [int(verse.values()[0])])
 
 
 @log_call
@@ -80,18 +84,8 @@ def word_search(word):
 		return []
 	locations = list(map(lambda l: (l.values()[0], l.getparent().values()[0],
                                  chpt[int(l.getparent().getparent().values()[0])-1], l.text), locations))
+    #location = list(map( lambda l: encapsulate(
 	return locations
-
-def xpath_range(attr, rng):
-    if type(rng) is int:
-        start = end = rng
-    else:
-        if len(rng) == 2:
-            start = rng[0]
-            end = rng[1]
-        else:
-            start = end = rng[0]
-    return f"[@{attr} >= {start} and @{attr} <= {end}]"
 
 
 
@@ -99,33 +93,37 @@ def xpath_range(attr, rng):
 def get_bible(book, chapter, verses):
     xpath_expr = f"//book[@number='{book}']//chapter[@number='{chapter}']"
     #xpath_expr = xpath_expr + f"//verse[@number >={start} and @number <={end}]"
-    if verses:
-        xpath_expr = xpath_expr + f"//verse"+xpath_range('number',verses)
+    #if verses:
+    xpath_expr = xpath_expr + f"//verse"+xpath_range('number',verses)
 
+    print(xpath_expr)
     elements = get_root().xpath(xpath_expr)
     result = list(map(lambda elem: (elem.values(), elem.text), elements))
     return Verses(book,chapter,result)
 
 def get_cmd(cmd):
-    parts = cmd[1:].strip().split(' ')
-    if len(parts) == 3:
-        b,c,v = parts
-    elif len(parts) == 2:
-        b,c = parts
-        v = [0,1000]
+    cmd = cmd[1:].strip().split(' ')
+    book = cmd[0]
+    if not book.isnumeric():
+        book = chpt.index(book.upper()) + 1
+    else:
+        book = int(book)
+    chapter = int(cmd[1])
 
-    if not b.isnumeric():
-        b = chpt.index(b.upper()) + 1
-    if '-' in v:
-        vs,ve = v.split('-')
-        v = [int(vs), int(ve)]
-    b=int(b)
-    c=int(c)
-    if type(v) is str:
-        v = int(v)
-    result = get_bible(b,c,v)
-    print(result)
-    print("="*60)
+    verses = []
+    if len(cmd) == 3:
+        vs = cmd[2].split(',')
+        for v in vs:
+            if '-' in v:
+                vfrom,vto = v.split('-')
+                v = (int(vfrom), int(vto))
+            else:
+                v = int(v)
+            verses.append(v)
+
+    result = get_bible(book,chapter,verses)
+    #print(result)
+    #print("="*60)
     return result
 
 def seek_cmd(cmd):
@@ -162,7 +160,8 @@ def cmd_ui():
 
 
 def test_lib():
-    r = get_bible(1,2,[4,7])
+    r = get_bible(1,2,[4,7,(10,12)])
+    #r = get_bible(1,2,[4])
     #r = list(r)
     #print(dir(r[0]))
     #print(repr(r))

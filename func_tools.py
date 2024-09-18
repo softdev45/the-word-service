@@ -22,6 +22,45 @@ def log_call(func):
 
     return wrapper
 
+def gen_book_map():
+    result = []
+    with open('books') as file:
+        while l := file.readline().strip():
+            result.append(l)
+    return result
+
+def xpath_range(attr, selection: list):
+    ranges = []
+    if not selection:
+        return ''
+    for item in selection:
+        if type(item) is int:
+            ranges.append( f"(@{attr} = {item})")
+        elif len(item) == 2:
+            start = item[0]
+            end = item[1]
+            ranges.append( f"(@{attr} >= {start} and @{attr} <= {end})" )
+    ranges = ' or '.join(ranges)
+    return f"[{ranges}]"
+
+def last_prefixed(lst, chars):
+    """
+    Finds the last element in a list that starts with the given character.
+
+    Args:
+        lst: The input list.
+        char: The character to search for at the beginning of elements.
+
+    Returns:
+        The last element starting with the given character, or None if not found.
+    """
+
+    for i in range(len(lst) - 1, -1, -1):
+        if lst[i][0] in chars:
+            return lst[i]
+    return None
+
+
 import os
 
 def files_in(path):
