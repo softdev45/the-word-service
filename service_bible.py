@@ -54,8 +54,9 @@ def page(cmd:str, sess):
     result = exec_cmd(cmd, lcmd=lcmd)
 
     hist = sess.get('hist',[])
-    if not cmd in hist and cmd[0] in '@#':
-        hist.append(cmd)
+    if cmd[0] in '@#':
+        if not cmd in hist:
+            hist.append(cmd)
         sess['lcmd'] = cmd
     print(hist[-5:])
     sess['hist'] = hist
