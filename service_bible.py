@@ -34,6 +34,17 @@ def get(sess):
 def new(sess):
     sess['hist'] = []
 
+@rt('/clear_broken')
+def get(sess):
+    hist = sess.get('hist',[])
+    for item in hist[:]:
+        result = exec_cmd(item)
+        if not result:
+            hist.remove(item)
+    sess['hist'] = hist
+    return Redirect('/')
+
+
 
 @app.get("/cmd/{cmd}")
 @app.post("/cmd/")
@@ -44,22 +55,17 @@ def page(cmd:str, sess):
     #if cmd[0] in '#@' and cmd == lcmd:
     #    print('same cmd')
     #    return None
-    if cmd[0] == 'c':
+    if cmd and cmd[0] == 'c':
         app.hdrs = list(filter(lambda e: e.tag != 'style', app.hdrs))
         if cmd == 'cb':
             app.hdrs.append(bs)
         if cmd == 'cw':
             app.hdrs.append(ws)
         return Redirect('/')
+
     result = exec_cmd(cmd, lcmd=lcmd)
 
     hist = sess.get('hist',[])
-    if cmd[0] in '@#':
-        if not cmd in hist:
-            hist.append(cmd)
-        sess['lcmd'] = cmd
-    print(hist[-5:])
-    sess['hist'] = hist
 
     import urllib.parse
     hlist = [ Button(f'[{el}]', 
@@ -79,6 +85,14 @@ def page(cmd:str, sess):
         result = Div(verses)
     if result:
         result = Div(hlist, result, id=f'{cmd}', style=PAGE_STYLE)
+
+    if result and cmd[0] in '@#':
+        if not cmd in hist:
+            hist.append(cmd)
+        sess['lcmd'] = cmd
+    #print(hist[-5:])
+    sess['hist'] = hist
+
     return result
 
 serve(port=5051)

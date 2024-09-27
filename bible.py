@@ -44,16 +44,17 @@ def load_translations():
 
     root_pl = etree.parse('../bible/Polish2018Bible.xml')
     root_pl2 = etree.parse('../bible/PolishNPDBible.xml')
-    root_pl3 = etree.parse('../bible/PolishBible.xml')
-    root_pl4 = etree.parse('../bible/PolishGdanskBible.xml')
-    root_en = etree.parse('../bible/EnglishCSBBible.xml')
+    #root_pl3 = etree.parse('../bible/PolishBible.xml')
+    #root_pl4 = etree.parse('../bible/PolishGdanskBible.xml')
+    root_en = etree.parse('../bible/EnglishNIVBible.xml')
 
-    roots = [ root_pl, 
-             root_pl2,
-             root_pl3,
-             root_pl4,
+    roots = [ 
+             root_pl, 
+             #root_pl2,
+             #root_pl3,
+             #root_pl4,
              root_en ]
-    root = root_pl
+    root = roots[0]
 
 load_translations()
 
