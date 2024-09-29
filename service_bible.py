@@ -29,6 +29,7 @@ def get(sess):
     form = Card(Form(
             Input(id="cmd", placehold="Command"),
             Button('enter'),
+            #hx_trigger="keyup-enter",
             hx_post='/cmd/',target_id='result',
             hx_swap='innerHTML', hx_on__after_request='document.querySelector("#result > :last-child").scrollIntoView(true)',
             ), versions,

@@ -165,7 +165,7 @@ def seek_cmd(cmd):
     return r
 
 def exec_cmd(cmd, lcmd = ''):
-    print('exec: ', cmd)
+    print('exec: ', cmd, 'lcmd:', lcmd)
     if cmd and cmd[0] == 's':
         if len(cmd) > 1:
             try:
@@ -178,12 +178,15 @@ def exec_cmd(cmd, lcmd = ''):
             index = None
         print('swap: ', index)
         swap_root(index)
-    if '@' in lcmd:
-        return get_cmd(lcmd)
-    elif '@' in cmd: 
+
+        if '@' in lcmd:
+            return get_cmd(lcmd)
+        if '#' in lcmd:
+            return seek_cmd(lcmd)
+    if '@' in cmd: 
         lcmd = cmd
         return get_cmd(cmd)
-    elif '#' in cmd:
+    if '#' in cmd:
         lcmd = cmd
         return seek_cmd(cmd)
 
