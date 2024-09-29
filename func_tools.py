@@ -75,10 +75,13 @@ def files_in(path):
     """
     #path = os.path.abspath(path)
     files = []
-    for file_path in os.listdir(path):
-        full_path = os.path.join(path, file_path)
-        if os.path.isfile(full_path):
-            files.append(full_path)
+    try:
+        for file_path in os.listdir(path):
+            full_path = os.path.join(path, file_path)
+            if os.path.isfile(full_path):
+                files.append(full_path)
+    except:
+        print('could not load from: ', path)
     return files
 
 def files_in2(path):

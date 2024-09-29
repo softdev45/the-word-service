@@ -43,18 +43,20 @@ ver_names = []
 
 @log_call
 def load_translations():
+
     global root
     global roots
     global ver_names
     global files
     
-    for file in files_in('../bible/'):
+    bible_files = [*files_in('../bible/shelf/'),*files_in('../bible/')]
+    for file in bible_files:
         files.append(file)
         #rt = etree.parse(file)
         #roots.append(rt)
         #bible_name = rt.xpath('/bible/@*')
         #ver_names.append( ' | '.join(bible_name)[:] )
-        ver_names.append( file.split('/')[2].split('.')[0] )
+        ver_names.append( file.split('/')[-1].split('.')[0] )
 
     #root = roots[0]
     return 
@@ -65,7 +67,9 @@ load_translations()
 
 def get_root():
     if not root:
-        swap_root(0)
+        default = next(filter(lambda el : 'NIV' in el, ver_names))
+        index = ver_names.index(default)
+        swap_root(index)
     return root
 def get_roots():
     return roots

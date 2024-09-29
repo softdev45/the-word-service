@@ -80,8 +80,19 @@ def page(cmd:str, sess):
                      hx_get=f"/cmd/{urllib.parse.quote(el)}",
                      target_id='result', hx_trigger='click', hx_swap='innerHTML',
                      style="font-size:100%;padding:0px;")
-             for el in hist ]
+             for el in hist 
+             if '@' in el
+             ]
     hlist = Div(*hlist, id='history',style="font-size:50%;padding:0px;")
+
+    hlist2 = [ Button(f'[{el}]', 
+                     hx_get=f"/cmd/{urllib.parse.quote(el)}",
+                     target_id='result', hx_trigger='click', hx_swap='innerHTML',
+                     style="font-size:100%;padding:0px;")
+             for el in hist 
+             if '#' in el
+             ]
+    hlist2 = Div(*hlist2, id='history',style="font-size:50%;padding:0px;")
 
     ver = get_ver()
     if type(result) is Verses:
@@ -90,11 +101,11 @@ def page(cmd:str, sess):
         result = Div(Div(result.ref(), style="color:#888;"), verses)
     elif result:
         verses = Div(*list(map(lambda v: Div(
-            Span(' '.join(reversed(v[0:3])),': ',v[3],style="color:#888",hx_get=f"/cmd/@{' '.join(reversed(v[1:3]))}", target_id='result', hx_trigger="click", hx_swap='innerHTML')), result)))
+            Span(' '.join(reversed(v[0:3])),': ',v[3],style="color:#888",hx_get=f"/cmd/@{' '.join(reversed(v[1:3]))}", target_id='result', hx_trigger="click[shiftKey]", hx_swap='innerHTML')), result)))
         result = Div(verses)
 
     if result:
-        result = Div(hlist,Div(ver),Div( result, id=f'{cmd}', style=PAGE_STYLE))
+        result = Div(hlist,Div(ver),Div( result, id=f'{cmd}', style=PAGE_STYLE), hlist2)
 
     if result and cmd[0] in '@#':
         if not cmd in hist:
