@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from func_tools import log_call
 from func_tools import xpath_range
 from func_tools import gen_book_map
+from func_tools import files_in
 
 
 chpt = gen_book_map()
@@ -36,36 +37,59 @@ class Verses:
 
 root = None
 roots = []
+versions = {}
+files = []
+ver_names = []
 
 @log_call
 def load_translations():
     global root
     global roots
+    global ver_names
+    global files
+    
+    for file in files_in('../bible/'):
+        files.append(file)
+        #rt = etree.parse(file)
+        #roots.append(rt)
+        #bible_name = rt.xpath('/bible/@*')
+        #ver_names.append( ' | '.join(bible_name)[:] )
+        ver_names.append( file.split('/')[2].split('.')[0] )
 
-    root_pl = etree.parse('../bible/Polish2018Bible.xml')
-    root_pl2 = etree.parse('../bible/PolishNPDBible.xml')
-    #root_pl3 = etree.parse('../bible/PolishBible.xml')
-    #root_pl4 = etree.parse('../bible/PolishGdanskBible.xml')
-    root_en = etree.parse('../bible/EnglishNIVBible.xml')
-
-    roots = [ 
-             root_pl, 
-             #root_pl2,
-             #root_pl3,
-             #root_pl4,
-             root_en ]
-    root = roots[0]
+    #root = roots[0]
+    return 
 
 load_translations()
 
 #root = root_pl
 
 def get_root():
+    if not root:
+        swap_root(0)
     return root
-def swap_root():
+def get_roots():
+    return roots
+def get_ver_names():
+    return ver_names
+def swap_root(index: int = None):
     global root
-    root = roots[(roots.index(root) + 1)% len(roots)]#NC:3]
-    
+    global versions
+    if index is None:
+        root = roots[(roots.index(root) + 1)% len(roots)]#NC:3]
+    else:
+        if index in versions:
+            root = versions[index]
+        else:
+            print('loading version...')
+            versions[index] = etree.parse(files[index])
+        root = versions[index]
+    print('new root: ' + get_root().docinfo.URL)
+
+def get_ver():
+    #print(get_root().docinfo.URL)
+    result = get_root().xpath('/bible/@*')
+    return result[0]
+    #return ' | '.join(result[0:1])
 
 def encapsulate(verse):
     v = Verse(int(verse.getparent().getparent().values()[0]),
@@ -134,17 +158,28 @@ def get_cmd(cmd):
 def seek_cmd(cmd):
     cmd = cmd[1:]
     r = word_search(cmd)
-    print(r)
+    #print(r)
     if r:
         for el in r :
             print(el)
     return r
 
 def exec_cmd(cmd, lcmd = ''):
-    if 's' == cmd:
-        swap_root()
-        if '@' in lcmd:
-            return get_cmd(lcmd)
+    print('exec: ', cmd)
+    if cmd and cmd[0] == 's':
+        if len(cmd) > 1:
+            try:
+                index = int(cmd[1:])
+            except :
+                import traceback
+                traceback.print_exc()
+                index = None
+        else:
+            index = None
+        print('swap: ', index)
+        swap_root(index)
+    if '@' in lcmd:
+        return get_cmd(lcmd)
     elif '@' in cmd: 
         lcmd = cmd
         return get_cmd(cmd)

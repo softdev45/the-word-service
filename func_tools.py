@@ -64,19 +64,33 @@ def last_prefixed(lst, chars):
 import os
 
 def files_in(path):
-  """
-  Gets a list of all files in the given path.
+    """
+    Gets a list of all files in the given path.
 
-  Args:
+    Args:
     path: The path to the directory.
 
-  Returns:
+    Returns:
     A list of all files in the directory.
-  """
+    """
+    #path = os.path.abspath(path)
+    files = []
+    for file_path in os.listdir(path):
+        full_path = os.path.join(path, file_path)
+        if os.path.isfile(full_path):
+            files.append(full_path)
+    return files
 
-  files = []
-  for root, dirs, files in os.walk(path):
+def files_in2(path):
+  w = os.walk(path, topdown=True)
+  for (root, dirs, files) in w:
+    dirs.clear()
+    print(root)
+    print(files)
+    input()
     for file in files:
+      print(file)
       if os.path.isfile(os.path.join(root, file)):
         files.append(os.path.join(root, file))
+    input()
   return files
