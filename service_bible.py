@@ -88,7 +88,8 @@ def page(cmd:str, sess):
         #result = Div(Div(result.book, result.get_book(), result.chapter, style="color:#888;"), verses)
         result = Div(Div(result.ref(), style="color:#888;"), verses)
     elif result:
-        verses = Div(*list(map(lambda v: Div(Span(' '.join(reversed(v[0:3])),': ',style="color:#888"),v[3]), result)))
+        verses = Div(*list(map(lambda v: Div(
+            Span(' '.join(reversed(v[0:3])),': ',v[3],style="color:#888",hx_get=f"/cmd/@{' '.join(reversed(v[1:3]))}", target_id='result', hx_trigger="click", hx_swap='innerHTML')), result)))
         result = Div(verses)
 
     if result:
