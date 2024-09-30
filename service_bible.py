@@ -8,7 +8,7 @@ from func_tools import last_prefixed
 START_PAGE = "@PSA 45 2-5"
 
 bs = Style(':root {color:#999; background:#444;}')
-ws = Style(':root {color:black; background:white;}')
+ws = Style(':root {color:#383A41; background:#FAFAFA;}')
 app = FastHTML()
 app.hdrs.append(bs)
 rt = app.route
@@ -21,19 +21,23 @@ def get(sess):
     version_select = Button(f'change ver', hx_get='/cmd/s', target_id='result', hx_swap='innerHTML')
     versions = []
     for i,v in enumerate(get_ver_names()):
-        version_select = Button(f'{v[:20]}', hx_get=f'/cmd/s{i}', target_id='result', hx_swap='innerHTML',style='font-size:80%;')
+        version_select = Button(f'{v[:20]}',
+                                hx_on_click="document.getElementById('vername').textContent = this.textContent",
+                                hx_get=f'/cmd/s{i}', target_id='result', hx_swap='innerHTML'
+                                ,style='font-size:80%;'
+                                )
         versions.append(version_select)
-    versions = Div(*versions, style='font-size:80%;')
+    versions = Div(*versions, Div(get_ver(), id='vername'), style='font-size:60%; background:#444')
         
     card = Card(Div(page(lcmd, sess)), id='result')
     form = Card(Form(
             Input(id="cmd", placehold="Command"),
-            Button('enter'),
+            Button('view'),
             #hx_trigger="keyup-enter",
             hx_post='/cmd/',target_id='result',
             hx_swap='innerHTML', hx_on__after_request='document.querySelector("#result > :last-child").scrollIntoView(true)',
             ), versions,
-                style="position:sticky; top:0; background: #444;"
+                style="position:sticky; top:0;"
             )
     new_session = Button('new session', hx_delete="/new", hx_swap='delete', target_id='history')
     return form,card, new_session
@@ -63,11 +67,12 @@ def page(cmd:str, sess):
     #if cmd[0] in '#@' and cmd == lcmd:
     #    print('same cmd')
     #    return None
-    if cmd and cmd[0] == 'c':
+    if cmd and cmd[0] == '!':
+        pcmd = cmd[1:]
         app.hdrs = list(filter(lambda e: e.tag != 'style', app.hdrs))
-        if cmd == 'cb':
+        if pcmd == 'cb':
             app.hdrs.append(bs)
-        if cmd == 'cw':
+        if pcmd == 'cw':
             app.hdrs.append(ws)
         return Redirect('/')
 
@@ -76,7 +81,7 @@ def page(cmd:str, sess):
     hist = sess.get('hist',[])
 
     import urllib.parse
-    hlist = [ Button(f'[{el}]', 
+    hlist = [ Button(f'{el}', 
                      hx_get=f"/cmd/{urllib.parse.quote(el)}",
                      target_id='result', hx_trigger='click', hx_swap='innerHTML',
                      style="font-size:100%;padding:0px;")
@@ -85,7 +90,7 @@ def page(cmd:str, sess):
              ]
     hlist = Div(*hlist, id='history',style="font-size:50%;padding:0px;")
 
-    hlist2 = [ Button(f'[{el}]', 
+    hlist2 = [ Button(f'{el}', 
                      hx_get=f"/cmd/{urllib.parse.quote(el)}",
                      target_id='result', hx_trigger='click', hx_swap='innerHTML',
                      style="font-size:100%;padding:0px;")
@@ -105,12 +110,13 @@ def page(cmd:str, sess):
         result = Div(verses)
 
     if result:
-        result = Div(hlist,Div(ver),Div( result, id=f'{cmd}', style=PAGE_STYLE), hlist2)
+        result = Div(hlist,Div( result, id=f'{cmd}', style=PAGE_STYLE), hlist2)
 
     if result and cmd[0] in '@#':
         if not cmd in hist:
             hist.append(cmd)
         sess['lcmd'] = cmd
+        print('set lcmd')
 
     sess['hist'] = hist
 
