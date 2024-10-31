@@ -110,15 +110,16 @@ def page(cmd:str, sess):
         result = Div(verses)
 
     if result:
-        result = Div(hlist,Div( result, id=f'{cmd}', style=PAGE_STYLE), hlist2)
+        result = Div(Div( result, id=f'{cmd}', style=PAGE_STYLE),hlist, hlist2)
 
     if result and cmd[0] in '@#':
         if not cmd in hist:
             hist.append(cmd)
         sess['lcmd'] = cmd
-        print('set lcmd')
+        print('set lcmd', cmd)
 
     sess['hist'] = hist
+    print(sess.get('lcmd',None))
 
     return result
 
